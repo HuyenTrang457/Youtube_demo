@@ -1,0 +1,26 @@
+# Core dependencies
+dagster==1.5.13
+dagster-webserver==1.5.13
+dagster-postgres==1.5.13
+dagster-aws==1.5.13
+dagster-dbt==1.5.13
+dagster-pandas==1.5.13
+dagster-pyspark==1.5.13
+
+# Database connectors
+mysql-connector-python==8.0.33
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+
+# Storage & processing
+minio==7.2.0
+pandas==2.1.1
+pyarrow==14.0.1
+pyspark==3.5.0
+dbt-core==1.6.1
+dbt-postgres==1.6.1
+
+# Utilities
+python-dotenv==1.0.0
+pyyaml==6.0.1
+pytest==7.4.3

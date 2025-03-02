@@ -1,0 +1,15 @@
+# contain Datase models to transform  from raw->cleaned-> analytics
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: trending_videos
+      - name: video_categories
+
+  - name: silver
+    schema: silver
+    tables:
+      - name: trending_videos
+      - name: video_categories

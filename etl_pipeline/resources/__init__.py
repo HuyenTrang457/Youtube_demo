@@ -1,0 +1,1 @@
+"""Resources for the ETL pipeline."""

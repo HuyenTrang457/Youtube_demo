@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # MySQL - Source database
+  mysql:
+    image: mysql:8.0
+    container_name: youtube_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: youtube_data
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - etl_network
+
+  # MinIO - Data Lake Storage
+  minio:
+    image: minio/minio
+    container_name: youtube_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console
+    volumes:
+      - minio_data:/data
+    networks:
+      - etl_network
+
+  # MinIO Client (mc) - Quản lý MinIO
+  minio-client:
+    image: minio/mc
+    container_name: youtube_minio_client
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set myminio http://minio:9000 minio minio123;
+      tail -f /dev/null"
+    networks:
+      - etl_network
+
+  # PostgreSQL - Target database for analytics
+  postgres:
+    image: postgres:15
+    container_name: youtube_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: youtube_analytics
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - etl_network
+
+  # Dagster - Orchestration
+  dagster-webserver:
+    build:
+      context: .
+      dockerfile: ./docker/dagster/Dockerfile
+    container_name: youtube_dagster_webserver
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_POSTGRES_USER: admin
+      DAGSTER_POSTGRES_PASSWORD: admin123
+      DAGSTER_POSTGRES_DB: dagster
+      DAGSTER_POSTGRES_HOST: postgres
+    volumes:
+      - ./:/opt/dagster/app
+      - dagster_home:/opt/dagster/dagster_home
+    depends_on:
+      - postgres
+    networks:
+      - etl_network
+
+  # Dagster Daemon - Background processing
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: ./docker/dagster/Dockerfile
+    container_name: youtube_dagster_daemon
+    restart: always
+    command: dagster-daemon run
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+      DAGSTER_POSTGRES_USER: admin
+      DAGSTER_POSTGRES_PASSWORD: admin123
+      DAGSTER_POSTGRES_DB: dagster
+      DAGSTER_POSTGRES_HOST: postgres
+    volumes:
+      - ./:/opt/dagster/app
+      - dagster_home:/opt/dagster/dagster_home
+    depends_on:
+      - postgres
+    networks:
+      - etl_network
+
+networks:
+  etl_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  minio_data:
+  postgres_data:
+  dagster_home:

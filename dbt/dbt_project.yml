@@ -1,0 +1,36 @@
+# contain definition for DBT project 
+#Database: Postgresql, Mysql
+name: 'youtube_analytics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'youtube_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  youtube_analytics:
+    # Bronze models
+    bronze:
+      +materialized: view
+      +schema: bronze
+    
+    # Silver models
+    silver:
+      +materialized: table
+      +schema: silver
+    
+    # Gold models
+    gold:
+      +materialized: table
+      +schema: gold

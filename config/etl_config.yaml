@@ -1,0 +1,63 @@
+# ETL Pipeline Configuration
+
+# Bronze Layer Configuration
+bronze:
+  source:
+    type: mysql
+    regions:
+      - us
+      - uk
+      - ca
+      - de
+      - fr
+      - jp
+      - au
+      - in
+      - br
+      - kr
+  destination:
+    type: minio
+    bucket: bronze
+    format: parquet
+    partitioning:
+      - region
+      - year
+      - month
+      - day
+
+# Silver Layer Configuration
+silver:
+  source:
+    type: minio
+    bucket: bronze
+  destination:
+    type: minio
+    bucket: silver
+    format: parquet
+    partitioning:
+      - region
+      - year
+      - month
+  transformations:
+    - clean_nulls
+    - standardize_timestamps
+    - validate_metrics
+    - deduplicate
+
+# Gold Layer Configuration
+gold:
+  source:
+    type: minio
+    bucket: silver
+  destination:
+    type: postgres
+    schema: youtube_analytics
+  models:
+    - dim_videos
+    - dim_channels
+    - dim_categories
+    - dim_regions
+    - fact_trending_videos
+    - fact_video_metrics
+    - agg_region_trends
+    - agg_category_performance

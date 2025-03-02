@@ -1,0 +1,12 @@
+# contain infomation connect database for dbt
+youtube_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'postgres') }}"
+      port: "{{ env_var('POSTGRES_PORT', 5432) | as_number }}"
+      user: "{{ env_var('POSTGRES_USER', 'postgres') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'postgres') }}"
+      dbname: "{{ env_var('POSTGRES_DB', 'youtube_analytics') }}"
+      schema: public

@@ -1,0 +1,40 @@
+
+# Storage Management (PostgreSQL)
+# Job Coordination (Scheduler, Run Coordinator)
+# Logging (Compute Logs)
+telemetry:
+  enabled: false
+
+storage:
+  postgres:
+    postgres_db:
+      username: 
+        env: DAGSTER_POSTGRES_USER
+      password:
+        env: DAGSTER_POSTGRES_PASSWORD
+      hostname:
+        env: DAGSTER_POSTGRES_HOST
+      db_name:
+        env: DAGSTER_POSTGRES_DB
+      port: 5432
+
+scheduler:
+  module: dagster.core.scheduler
+  class: DagsterDaemonScheduler
+
+# Coordinate jobs to avoid running at the same time, avoiding system overload. 
+# Queue (QueuedRunCoordinator) if there are many jobs running at the same time.
+run_coordinator:
+  module: dagster.core.run_coordinator
+  class: QueuedRunCoordinator
+
+run_launcher:
+  module: dagster.core.launcher
+  class: DefaultRunLauncher
+
+# save log to easy management
+compute_logs:
+  module: dagster.core.storage.local_compute_log_manager
+  class: LocalComputeLogManager
+  config:
+    base_dir: /opt/dagster/dagster_home/compute_logs

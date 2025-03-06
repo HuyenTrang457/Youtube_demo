@@ -4,7 +4,6 @@ This project implements a comprehensive ETL (Extract, Transform, Load) pipeline 
 
 ## Architecture Overview
 
-![ETL Pipeline Architecture](https://miro.medium.com/v2/resize:fit:1400/1*hkqRLTJVrWJsJUJlqyZiHQ.png)
 
 ### Data Flow Process
 
@@ -90,15 +89,7 @@ docker-compose up -d
 
 3. Access the Dagster UI at http://localhost:3000
 
-### Running the Pipeline
 
-The pipeline is scheduled to run automatically with the following cadence:
-
-| Layer   | Schedule        | Description                                |
-|---------|----------------|--------------------------------------------|
-| Bronze  | Every 6 hours   | Extract raw data from source systems       |
-| Silver  | 30 min after Bronze | Process and clean the extracted data   |
-| Gold    | Every 12 hours  | Transform clean data into analytics models |
 
 You can also trigger the pipeline manually through the Dagster UI for testing or ad-hoc runs.
 
